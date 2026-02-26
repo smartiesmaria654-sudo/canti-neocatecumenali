@@ -286,11 +286,19 @@ def fetch_all_songs_from_lista_canti(max_pages: int = 80, polite_sleep: float = 
 
             # prova a leggere i riferimenti dal primo <li> successivo
             cfr_text = ""
-            nxt = h.find_next_sibling()
-            if nxt and nxt.name == "ul":
-                li = nxt.find("li")
-                if li:
-                    cfr_text = _clean(li.get_text(" ", strip=True))
+           # prova a leggere i riferimenti dal primo <ul><li> successivo (saltando i nodi di testo)
+ul = h.find_next_sibling("ul")
+if ul:
+    li = ul.find("li")
+    if li:
+        cfr_text = _clean(li.get_text(" ", strip=True))
+else:
+    # fallback: cerca il primo ul dopo l'heading (in caso di markup diverso)
+    ul2 = h.find_next("ul")
+    if ul2:
+        li2 = ul2.find("li")
+        if li2:
+            cfr_text = _clean(li2.get_text(" ", strip=True))
 
             # se non è una riga "Cfr." (es. "Canto di Natale") lasciamo refs vuoti
             refs = []
